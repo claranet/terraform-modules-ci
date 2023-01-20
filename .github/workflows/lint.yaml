@@ -1,0 +1,53 @@
+name: TF Lint
+on: 
+  workflow_call:
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: hashicorp/terraform:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'rossifumax/terraform-modules-ci'
+          ref: 'ci-test'
+          path: '.github/terraform-modules-ci'
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare TFLint config file
+        run: | 
+          apk update && apk add git jq curl
+          export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
+          sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+
+      - name: Prepare CI files
+        run: |
+          if grep -q "hashicorp/azurerm" versions.tf; then
+            cat <<EOF > main.tf
+              provider "azurerm" {
+                features {}
+              }
+          EOF
+          fi
+    
+          find . -name "*.ci" -exec sh -c 'mv $0 ${0%.*}' {} \;
+
+      - name: Show version
+        run: tflint --version
+
+      - name: Init TFLint
+        run: tflint --init --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+
+      - name: TFLint
+        run: |
+          for d in . $(find . -maxdepth 2 -path './modules/*' -type d -print); do cd $d && echo "current dir $PWD" && terraform init && TFLINT_LOG=debug tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit $?; cd -; done
