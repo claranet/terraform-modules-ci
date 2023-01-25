@@ -24,7 +24,7 @@ jobs:
       
       - name: TFDocs
         run: |
-            for d in .; do terraform-docs --hide requirements --anchor=false --lockfile=false markdown $d --output-file "README.md" --config .github/terraform-modules-ci/terraform-docs.yml || exit $?; done
+            for d in .; do terraform-docs $d --config .github/terraform-modules-ci/terraform-docs.yml || exit $?; done
             for d in $(find . -maxdepth 2 -path './modules/*' -type d -print); do terraform-docs --hide requirements --anchor=false --lockfile=false markdown $d --output-file "README.md" || exit $?; done
             # Need to add safe directory otherwise not recognized as a git repository
             git config --global --add safe.directory "$GITHUB_WORKSPACE"

@@ -21,3 +21,7 @@ jobs:
   examples:
     needs: [code-analysis]
     uses: rossifumax/terraform-modules-ci/.github/workflows/examples.yaml@ci-test
+  
+  generator:
+    needs: [examples]
+    uses: rossifumax/terraform-modules-ci/.github/workflows/generate.yaml@ci-test

@@ -1,4 +1,16 @@
 ---
+formatter: "markdown"
+
+settings:
+  anchor: false
+  lockfile: false
+
+output:
+  file: "README.md"
+
+sections:
+  hide: [requirements]
+
 content: |-
   ## Global versioning rule for Claranet Azure modules
   
