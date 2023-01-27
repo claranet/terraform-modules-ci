@@ -18,7 +18,7 @@ jobs:
       - name: Checkout CI repository
         uses: actions/checkout@v3
         with:
-          repository: 'rossifumax/terraform-modules-ci'
+          repository: 'claranet/terraform-modules-ci'
           ref: 'ci-test'
           path: '.github/terraform-modules-ci'
       

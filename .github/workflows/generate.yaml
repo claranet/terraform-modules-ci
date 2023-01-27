@@ -15,13 +15,15 @@ jobs:
 
       - name: Read versions in .github/variables/versions.env
         run: |
-          sed "" $GITHUB_WORKSPACE/.github/variables/versions.env >> $GITHUB_ENV
+          [[ $(grep TF_MIN_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep TF_MIN_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
+          [[ $(grep TF_MAX_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep TF_MAX_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
+          [[ $(grep AZURERM_PROVIDER_MIN_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep AZURERM_PROVIDER_MIN_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
         shell: bash
 
       - name: Checkout CI repository
         uses: actions/checkout@v3
         with:
-          repository: 'rossifumax/terraform-modules-ci'
+          repository: 'claranet/terraform-modules-ci'
           ref: 'ci-test'
           path: '.github/terraform-modules-ci'
 

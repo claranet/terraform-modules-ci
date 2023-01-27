@@ -5,23 +5,23 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   validate:
-    uses: rossifumax/terraform-modules-ci/.github/workflows/validate.yaml@ci-test
+    uses: ./.github/workflows/validate.yaml
 
   lint:
-    uses: rossifumax/terraform-modules-ci/.github/workflows/lint.yaml@ci-test
+    uses: ./.github/workflows/lint.yaml
 
   documentation:
     needs: [lint, validate]
-    uses: rossifumax/terraform-modules-ci/.github/workflows/documentation.yaml@ci-test
+    uses: ./.github/workflows/documentation.yaml
 
   code-analysis:
     needs: [documentation]
-    uses: rossifumax/terraform-modules-ci/.github/workflows/code-analysis.yaml@ci-test
+    uses: ./.github/workflows/code-analysis.yaml
 
   examples:
     needs: [code-analysis]
-    uses: rossifumax/terraform-modules-ci/.github/workflows/examples.yaml@ci-test
+    uses: ./.github/workflows/examples.yaml
   
   generator:
     needs: [examples]
-    uses: rossifumax/terraform-modules-ci/.github/workflows/generate.yaml@ci-test
+    uses: ./.github/workflows/generate.yaml

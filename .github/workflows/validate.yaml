@@ -1,4 +1,4 @@
-name: TF Validate
+name: TF format and validate
 on: 
   workflow_call:
 jobs:

@@ -13,7 +13,7 @@ jobs:
       - name: Checkout CI repository
         uses: actions/checkout@v3
         with:
-          repository: 'rossifumax/terraform-modules-ci'
+          repository: 'claranet/terraform-modules-ci'
           ref: 'ci-test'
           path: '.github/terraform-modules-ci'
 
@@ -40,7 +40,7 @@ jobs:
           modules=$(grep -E "^\s*source(\s+)=" examples/**/modules.tf | sed 's/^.*= //' | sed 's/--//' | sed 's/"//g' | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}')
 
           # Retrieve name of the module
-          module_name=$(echo $GITHUB_REPOSITORY | sed 's|rossifumax/terraform-azurerm-||')
+          module_name=$(echo $GITHUB_REPOSITORY | sed 's|claranet/terraform-azurerm-||')
           echo $module_name
     
           sed -i "/version =.*/d" examples/**/modules.tf
