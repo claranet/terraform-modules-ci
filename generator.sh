@@ -30,11 +30,11 @@ do
   TERRAFORM_VERSIONS+="'$full_version', "
 
   elif [[ $AZURERM_PROVIDER_MIN_VERSION == 2.* ]]; then
-  AZURERM_VERSIONS="'2.0', '$AZURERM_PROVIDER_MIN_VERSION', '3.0'"
+  AZURERM_VERSIONS="'$(echo ${AZURERM_PROVIDER_MIN_VERSION} | sed -r "s/([0-9]+\.[0-9]+)(\..*)*/\1/g").0', '$AZURERM_PROVIDER_MIN_VERSION', '3.0'"
   TERRAFORM_VERSIONS+="'$full_version', "
 
   else
-  AZURERM_VERSIONS="'3.0', '$AZURERM_PROVIDER_MIN_VERSION'"
+  AZURERM_VERSIONS="'$(echo ${AZURERM_PROVIDER_MIN_VERSION} | sed -r "s/([0-9]+\.[0-9]+)(\..*)*/\1/g").0', '$AZURERM_PROVIDER_MIN_VERSION'"
   TERRAFORM_VERSIONS+="'$full_version', "
 
   fi
