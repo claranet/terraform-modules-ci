@@ -13,7 +13,7 @@ sections:
 
 content: |-
   ## Global versioning rule for Claranet Azure modules
-  
+
   | Module version | Terraform version | AzureRM version |
   | -------------- | ----------------- | --------------- |
   | >= 7.x.x       | 1.3.x             | >= 3.0          |
