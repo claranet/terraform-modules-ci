@@ -53,8 +53,6 @@ jobs:
             }
           EOF
 
-          for f in *.ci; do mv -vf "$f" "${f%.ci}"; done
-
       - name: Install Terraform ${{ matrix.tfv }}
         run: |
           wget --quiet https://releases.hashicorp.com/terraform/${{ matrix.tfv }}/terraform_${{ matrix.tfv }}_linux_amd64.zip && unzip terraform_${{ matrix.tfv }}_linux_amd64.zip && mv terraform /usr/local/bin
