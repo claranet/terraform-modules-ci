@@ -1,5 +1,5 @@
 name: Generate
-on: 
+on:
   workflow_call:
 jobs:
   generate:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Read versions in .github/variables/versions.env
+      - name: Read versions in .gitlab-ci.yml
         run: |
           [[ $(grep TF_MIN_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep TF_MIN_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
           [[ $(grep TF_MAX_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep TF_MAX_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
@@ -37,7 +37,7 @@ jobs:
     strategy:
       matrix:
         tfv: ${{ fromJson(needs.generate.outputs.TERRAFORM_VERSIONS) }}
-        azrmv: ${{ fromJson(needs.generate.outputs.AZURERM_VERSIONS) }} 
+        azrmv: ${{ fromJson(needs.generate.outputs.AZURERM_VERSIONS) }}
     runs-on: ubuntu-latest
     needs: generate
     steps:

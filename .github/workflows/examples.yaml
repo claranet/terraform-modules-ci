@@ -1,5 +1,5 @@
-name: TF examples check 
-on: 
+name: TF examples check
+on:
   workflow_call:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -23,7 +23,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare TFLint config file
-        run: | 
+        run: |
           apk update && apk add git jq curl
           export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
@@ -34,7 +34,7 @@ jobs:
       - name: Prepare repo
         shell: bash
         run: |
-          for dir in examples/*; do [ -d "$dir" ] && cp terraform.tfvars.ci "$dir/terraform.tfvars" || exit $?; done
+          for dir in examples/*; do [ -d "$dir" ] && cp terraform.tfvars.ci "$dir/" || exit $?; done
 
           # Add latest versions in examples
           modules=$(grep -E "^\s*source(\s+)=" examples/**/modules.tf | sed 's/^.*= //' | sed 's/--//' | sed 's/"//g' | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}')
@@ -42,9 +42,9 @@ jobs:
           # Retrieve name of the module
           module_name=$(echo $GITHUB_REPOSITORY | sed 's|claranet/terraform-azurerm-||')
           echo $module_name
-    
+
           sed -i "/version =.*/d" examples/**/modules.tf
-    
+
           for i in ${modules}
           do
             # If it's a submodule of the current module
