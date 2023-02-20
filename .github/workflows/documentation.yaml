@@ -1,0 +1,31 @@
+name: documentation
+on:
+  workflow_call:
+jobs:
+  readme:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/terraform-docs/terraform-docs:0.16.0
+    steps:
+      - name: Install pre-requisites
+        run: apk update && apk add git git-lfs
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'claranet/terraform-modules-ci'
+          ref: 'main'
+          path: '.github/terraform-modules-ci'
+
+      - name: TFDocs
+        run: |
+            for d in .; do terraform-docs $d --config .github/terraform-modules-ci/terraform-docs.yml || exit $?; done
+            for d in $(find . -maxdepth 2 -path './modules/*' -type d -print); do terraform-docs --hide requirements --anchor=false --lockfile=false markdown $d --output-file "README.md" || exit $?; done
+            # Need to add safe directory otherwise not recognized as a git repository
+            git config --global --add safe.directory "$GITHUB_WORKSPACE"
+            git diff --exit-code

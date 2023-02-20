@@ -1,0 +1,67 @@
+name: Generate
+on:
+  workflow_call:
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/gitlab-ci-utils/curl-jq
+    outputs:
+      TERRAFORM_VERSIONS: ${{ steps.generator.outputs.TERRAFORM_VERSIONS }}
+      AZURERM_VERSIONS: ${{ steps.generator.outputs.AZURERM_VERSIONS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Read versions in .gitlab-ci.yml
+        run: |
+          [[ $(grep TF_MIN_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep TF_MIN_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
+          [[ $(grep TF_MAX_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep TF_MAX_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
+          [[ $(grep AZURERM_PROVIDER_MIN_VERSION .gitlab-ci.yml) != "" ]] && echo $(grep AZURERM_PROVIDER_MIN_VERSION .gitlab-ci.yml | sed -e "s/: /=/g" -e 's/"//g') >> $GITHUB_ENV
+        shell: bash
+
+      - name: Checkout CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'claranet/terraform-modules-ci'
+          ref: 'main'
+          path: '.github/terraform-modules-ci'
+
+      - name: Generate variables
+        id: generator
+        run: |
+          $GITHUB_WORKSPACE/.github/terraform-modules-ci/generator.sh $TF_MIN_VERSION $AZURERM_PROVIDER_MIN_VERSION $TF_MAX_VERSION
+        shell: bash
+
+  run:
+    strategy:
+      matrix:
+        tfv: ${{ fromJson(needs.generate.outputs.TERRAFORM_VERSIONS) }}
+        azrmv: ${{ fromJson(needs.generate.outputs.AZURERM_VERSIONS) }}
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare CI files
+        run: |
+          cat <<EOF > main.tf
+            provider "azurerm" {
+              version = "~> ${{ matrix.azrmv }}"
+              $([[ ${{ matrix.azrmv }} != 1.* ]] && echo "features {}")
+            }
+          EOF
+
+      - name: Install Terraform ${{ matrix.tfv }}
+        run: |
+          wget --quiet https://releases.hashicorp.com/terraform/${{ matrix.tfv }}/terraform_${{ matrix.tfv }}_linux_amd64.zip && unzip terraform_${{ matrix.tfv }}_linux_amd64.zip && mv terraform /usr/local/bin
+
+      - name: Show Terraform version
+        run: terraform -v
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform validate
+        run: terraform validate

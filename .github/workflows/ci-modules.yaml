@@ -1,0 +1,27 @@
+name: Modules CI
+on:
+  workflow_call:
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  validate:
+    uses: ./.github/workflows/validate.yaml
+
+  lint:
+    uses: ./.github/workflows/lint.yaml
+
+  documentation:
+    needs: [lint, validate]
+    uses: ./.github/workflows/documentation.yaml
+
+  code-analysis:
+    needs: [documentation]
+    uses: ./.github/workflows/code-analysis.yaml
+
+  examples:
+    needs: [code-analysis]
+    uses: ./.github/workflows/examples.yaml
+
+  generator:
+    needs: [examples]
+    uses: ./.github/workflows/generate.yaml

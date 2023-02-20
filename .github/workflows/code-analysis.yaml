@@ -1,0 +1,14 @@
+name: TF Sec - code analysis
+on:
+  workflow_call:
+jobs:
+  code-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: tfsec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          full_repo_scan: true

@@ -1,0 +1,83 @@
+name: TF examples check
+on:
+  workflow_call:
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Checkout CI repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'claranet/terraform-modules-ci'
+          ref: 'main'
+          path: '.github/terraform-modules-ci'
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare TFLint config file
+        run: |
+          apk update && apk add git jq curl
+          export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
+          sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Prepare repo
+        shell: bash
+        run: |
+          for dir in examples/*; do [ -d "$dir" ] && cp terraform.tfvars.ci "$dir/" || exit $?; done
+
+          # Add latest versions in examples
+          modules=$(grep -E "^\s*source(\s+)=" examples/**/modules.tf | sed 's/^.*= //' | sed 's/--//' | sed 's/"//g' | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}')
+
+          # Retrieve name of the module
+          module_name=$(echo $GITHUB_REPOSITORY | sed 's|claranet/terraform-azurerm-||')
+          echo $module_name
+
+          sed -i "/version =.*/d" examples/**/modules.tf
+
+          for i in ${modules}
+          do
+            # If it's a submodule of the current module
+            if [[ -z "${i##*${module_name}/azurerm//modules*}" ]]; then
+              submodule=$(echo ${i} | sed 's/.*modules\///g')
+              sed -i 's#\"'"${i}"'\"#\"../../modules/'"${submodule}"'\"#' examples/**/modules.tf
+            # If it's the current module
+            elif [[ -z "${i##claranet/${module_name}/azurerm}" ]]; then
+              sed -i 's#\"'"${i}"'\"#\"../../\"#' examples/**/modules.tf
+            # If it's the current module with Gitlab URL
+            elif [[ -z "${i##*${module_name}.git*}" ]]; then
+              sed -i 's#\"'"${i}"'\"#\"../../\"#g' examples/**/modules.tf
+            # If it's the current module with Github URL
+            elif [[ -z "${i##*github.com/claranet/terraform-azurerm-${module_name}*}" ]]; then
+              sed -i 's#\"'"${i}"'\"#\"../../\"#' examples/**/modules.tf
+            # If it's a module with Gitlab URL
+            elif [[ -z "${i##*ssh://git@git.fr.clara.net*}" ]]; then
+              echo "Do nothing with this URL dude !"
+            elif [[ -z "${i##*github.com*}" ]]; then
+              echo "Do nothing with this URL dude !"
+            # If it's a module of Terraform Registry
+            else
+              module=$(echo ${i} | sed -e 's/\/\/.*//g')
+              latest_v=$(curl -s https://registry.terraform.io/v1/modules/$module | jq '.versions[-1]')
+              sed -i 's#\"'"${i}"'\"#&\n\  version = '"${latest_v}"'#' examples/**/modules.tf
+            fi
+          done
+          cat examples/**/modules.tf
+
+      - name: Init TFLint
+        run: tflint --init --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+
+      - name: Check examples
+        shell: bash
+        run: |
+          for d in $(find . -maxdepth 2 -path './examples/*' -type d -print); do cd $d && echo "current dir $PWD" && terraform init && terraform validate && TFLINT_LOG=info tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit 1;cd -; done
