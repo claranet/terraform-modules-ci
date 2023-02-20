@@ -1,5 +1,5 @@
 name: documentation
-on: 
+on:
   workflow_call:
 jobs:
   readme:
@@ -21,7 +21,7 @@ jobs:
           repository: 'claranet/terraform-modules-ci'
           ref: 'main'
           path: '.github/terraform-modules-ci'
-      
+
       - name: TFDocs
         run: |
             for d in .; do terraform-docs $d --config .github/terraform-modules-ci/terraform-docs.yml || exit $?; done

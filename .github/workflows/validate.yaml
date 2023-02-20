@@ -1,5 +1,5 @@
 name: TF format and validate
-on: 
+on:
   workflow_call:
 jobs:
   validate:
@@ -16,5 +16,5 @@ jobs:
 
       - name: validate
         run: |
-          terraform init 
+          terraform init
           terraform validate

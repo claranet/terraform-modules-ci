@@ -1,5 +1,5 @@
 name: TF Lint
-on: 
+on:
   workflow_call:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -25,7 +25,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare TFLint config file
-        run: | 
+        run: |
           apk update && apk add git jq curl
           export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl

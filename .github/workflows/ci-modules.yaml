@@ -1,5 +1,5 @@
 name: Modules CI
-on: 
+on:
   workflow_call:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -21,7 +21,7 @@ jobs:
   examples:
     needs: [code-analysis]
     uses: ./.github/workflows/examples.yaml
-  
+
   generator:
     needs: [examples]
     uses: ./.github/workflows/generate.yaml
