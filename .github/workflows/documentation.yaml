@@ -5,7 +5,7 @@ jobs:
   readme:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/terraform-docs/terraform-docs:0.16.0
+      image: quay.io/terraform-docs/terraform-docs:0.19.0
     steps:
       - name: Install pre-requisites
         run: apk update && apk add git git-lfs
@@ -18,20 +18,20 @@ jobs:
       - name: Checkout CI repository
         uses: actions/checkout@v3
         with:
-          repository: 'claranet/terraform-modules-ci'
-          ref: 'main'
-          path: '.github/terraform-modules-ci'
+          repository: "claranet/terraform-modules-ci"
+          ref: "main"
+          path: ".github/terraform-modules-ci"
 
       - name: TFDocs
         run: |
-            terraform-docs . --config .github/terraform-modules-ci/terraform-docs.yml || exit $?
-            for d in $(find . -maxdepth 2 -path './modules/*' -type d -print); do
-              cd $d;
-              cp -vf ../../examples/$(basename $d)/modules.tf .example.tf
-              terraform-docs . --config ../../.github/terraform-modules-ci/terraform-docs-submodule.yml || exit $?;
-              rm -vf .example.tf;
-              cd -;
-            done
-            # Need to add safe directory otherwise not recognized as a git repository
-            git config --global --add safe.directory "$GITHUB_WORKSPACE"
-            git diff --exit-code
+          terraform-docs . --config .github/terraform-modules-ci/terraform-docs.yml || exit $?
+          for d in $(find . -maxdepth 2 -path './modules/*' -type d -print); do
+            cd $d;
+            cp -vf ../../examples/$(basename $d)/modules.tf .example.tf
+            terraform-docs . --config ../../.github/terraform-modules-ci/terraform-docs-submodule.yml || exit $?;
+            rm -vf .example.tf;
+            cd -;
+          done
+          # Need to add safe directory otherwise not recognized as a git repository
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git diff --exit-code
