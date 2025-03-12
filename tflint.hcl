@@ -8,6 +8,7 @@ config {
   call_module_type = "local"
   force = false
   disabled_by_default = false
+  plugin_dir = "~/.tflint.d/plugins"
 
   varfile = ["terraform.tfvars.ci"]
 }
@@ -42,6 +43,12 @@ rule "terraform_typed_variables" {
 
 rule "terraform_module_pinned_source" {
   enabled = true
+}
+
+# Disabled for examples code with unfixed version
+rule "terraform_module_version" {
+  enabled = false
+  exact = false # default
 }
 
 rule "terraform_naming_convention" {
