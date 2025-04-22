@@ -13,9 +13,9 @@ jobs:
       - name: Checkout CI repository
         uses: actions/checkout@v3
         with:
-          repository: 'claranet/terraform-modules-ci'
-          ref: 'main'
-          path: '.github/terraform-modules-ci'
+          repository: "claranet/terraform-modules-ci"
+          ref: "main"
+          path: ".github/terraform-modules-ci"
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v2
@@ -28,10 +28,10 @@ jobs:
           export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: "< 1.6"
+      - name: Install OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        # with:
+        #   tofu_version: 1.9.0
 
       - name: Prepare repo
         shell: bash
@@ -82,4 +82,4 @@ jobs:
       - name: Check examples
         shell: bash
         run: |
-          for d in $(find . -maxdepth 2 -path './examples/*' -type d -print); do cd $d && echo "current dir $PWD" && terraform init && terraform validate && TFLINT_LOG=info tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit 1;cd -; done
+          for d in $(find . -maxdepth 2 -path './examples/*' -type d -print); do cd $d && echo "current dir $PWD" && tofu init && tofu validate && TFLINT_LOG=info tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit 1;cd -; done
