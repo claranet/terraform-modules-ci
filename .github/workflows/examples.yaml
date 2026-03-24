@@ -18,9 +18,10 @@ jobs:
           path: ".github/terraform-modules-ci"
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v2
+        uses: terraform-linters/setup-tflint@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tflint_version: v0.52.0
+          cache: true
 
       - name: Prepare TFLint config file
         run: |
@@ -29,7 +30,7 @@ jobs:
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
 
       - name: Install OpenTofu
-        uses: opentofu/setup-opentofu@v1
+        uses: opentofu/setup-opentofu@v2
         # with:
         #   tofu_version: 1.9.0
 
@@ -78,6 +79,9 @@ jobs:
 
       - name: Init TFLint
         run: tflint --init --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+        env:
+          # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check examples
         shell: bash
