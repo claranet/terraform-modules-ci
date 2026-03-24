@@ -7,22 +7,23 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     container:
-      image: hashicorp/terraform:1.5
+      image: ghcr.io/opentofu/opentofu:1.11.5
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout CI repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          repository: 'claranet/terraform-modules-ci'
-          ref: 'main'
-          path: '.github/terraform-modules-ci'
+          repository: "claranet/terraform-modules-ci"
+          ref: "main"
+          path: ".github/terraform-modules-ci"
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v2
+        uses: terraform-linters/setup-tflint@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tflint_version: v0.52.0
+          cache: true
 
       - name: Prepare TFLint config file
         run: |
@@ -45,7 +46,10 @@ jobs:
 
       - name: Init TFLint
         run: tflint --init --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+        env:
+          # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: TFLint
         run: |
-          for d in . $(find . -maxdepth 2 -path './modules/*' -type d -print); do cd $d && echo "current dir $PWD" && terraform init && TFLINT_LOG=debug tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit $?; cd -; done
+          for d in . $(find . -maxdepth 2 -path './modules/*' -type d -print); do cd $d && echo "current dir $PWD" && tofu init && TFLINT_LOG=debug tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit $?; cd -; done
