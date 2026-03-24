@@ -18,6 +18,6 @@ jobs:
     needs: [lint, validate, documentation]
     uses: ./.github/workflows/examples.yaml
 
-  generator:
-    needs: [examples]
-    uses: ./.github/workflows/generate.yaml
+  # generator:
+  #   needs: [examples]
+  #   uses: ./.github/workflows/generate.yaml
