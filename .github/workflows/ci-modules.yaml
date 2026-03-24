@@ -15,7 +15,7 @@ jobs:
     uses: ./.github/workflows/documentation.yaml
 
   examples:
-    needs: [code-analysis]
+    needs: [lint, validate, documentation]
     uses: ./.github/workflows/examples.yaml
 
   generator:

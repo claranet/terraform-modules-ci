@@ -30,9 +30,9 @@ jobs:
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
 
       - name: Install OpenTofu
-        uses: opentofu/setup-opentofu@v2
-        # with:
-        #   tofu_version: 1.9.0
+        run: |
+          curl -fsSL https://get.opentofu.org/install-opentofu.sh | sh -s -- --install-method deb
+          tofu --version
 
       - name: Prepare repo
         shell: bash

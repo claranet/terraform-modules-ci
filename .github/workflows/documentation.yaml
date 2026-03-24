@@ -5,7 +5,7 @@ jobs:
   readme:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/terraform-docs/terraform-docs:0.21.0
+      image: quay.io/terraform-docs/terraform-docs:0.21.0-amd64
     steps:
       - name: Install pre-requisites
         run: apk update && apk add git git-lfs
