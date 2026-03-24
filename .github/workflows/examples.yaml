@@ -37,43 +37,43 @@ jobs:
       - name: Prepare repo
         shell: bash
         run: |
-          for dir in examples/*; do [ -d "$dir" ] && cp terraform.tfvars.ci "$dir/" || exit $?; done
-
-          # Add latest versions in examples
-          modules=$(grep -E "^\s*source(\s+)=" examples/**/modules.tf | sed 's/^.*= //' | sed 's/--//' | sed 's/"//g' | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}')
-
           # Retrieve name of the module
           module_name=$(echo $GITHUB_REPOSITORY | sed 's|claranet/terraform-azurerm-||')
           echo $module_name
 
-          sed -i "/version =.*/d" examples/**/modules.tf
+          for dir in examples/*; do [ -d "$dir" ] && cp terraform.tfvars.ci "$dir/" || exit $?; done
 
-          for i in ${modules}
+          sed -i "/ version =.*/d" examples/**/modules.tf examples/**/base.tf
+
+          for dir in examples/*
           do
-            # If it's a submodule of the current module
-            if [[ -z "${i##*${module_name}/azurerm//modules*}" ]]; then
-              submodule=$(echo ${i} | sed 's/.*modules\///g')
-              sed -i 's#\"'"${i}"'\"#\"../../modules/'"${submodule}"'\"#' examples/**/modules.tf
-            # If it's the current module
-            elif [[ -z "${i##claranet/${module_name}/azurerm}" ]]; then
-              sed -i 's#\"'"${i}"'\"#\"../../\"#' examples/**/modules.tf
-            # If it's the current module with Gitlab URL
-            elif [[ -z "${i##*${module_name}.git*}" ]]; then
-              sed -i 's#\"'"${i}"'\"#\"../../\"#g' examples/**/modules.tf
-            # If it's the current module with Github URL
-            elif [[ -z "${i##*github.com/claranet/terraform-azurerm-${module_name}*}" ]]; then
-              sed -i 's#\"'"${i}"'\"#\"../../\"#' examples/**/modules.tf
-            # If it's a module with Gitlab URL
-            elif [[ -z "${i##*ssh://git@git.fr.clara.net*}" ]]; then
-              echo "Do nothing with this URL dude !"
-            elif [[ -z "${i##*github.com*}" ]]; then
-              echo "Do nothing with this URL dude !"
-            # If it's a module of Terraform Registry
-            else
-              module=$(echo ${i} | sed -e 's/\/\/.*//g')
-              latest_v=$(curl -s https://registry.terraform.io/v1/modules/$module | jq '.versions[-1]')
-              sed -i 's#\"'"${i}"'\"#&\n\  version = '"${latest_v}"'#' examples/**/modules.tf
-            fi
+            # Add latest versions for each example
+            modules=$(grep -E "^\s*source(\s+)=" "${dir}/modules.tf" "${dir}/base.tf" | sed 's/^.*= //' | sed 's/--//' | sed 's/"//g' | awk '{for (i=1;i<=NF;i++) if (!a[$i]++) printf("%s%s",$i,FS)}{printf("\n")}')
+            for i in $modules
+            do
+              # If it's a submodule of the current module
+              if [[ -z "${i##*"${module_name}"/azurerm//modules*}" ]]; then
+                submodule=$(echo ${i} | sed 's/.*modules\///g')
+                sed -i 's#\"'"${i}"'\"#\"../../modules/'"${submodule}"'\"#' "${dir}/modules.tf" "${dir}/base.tf"
+              # If it's the current module
+              elif [[ -z "${i##claranet/"${module_name}"/az*}" ]]; then
+                sed -i 's#\"'"${i}"'\"#\"../../\"#' "${dir}/modules.tf" "${dir}/base.tf"
+              # If it's the current module with Gitlab URL
+              elif [[ -z "${i##*"${module_name}".git*}" ]]; then
+                sed -i 's#\"'"${i}"'\"#\"../../\"#g' "${dir}/modules.tf" "${dir}/base.tf"
+              # If it's the current module with Github URL
+              elif [[ -z "${i##*github.com/claranet/terraform-az*-"${module_name}"*}" ]]; then
+                sed -i 's#\"'"${i}"'\"#\"../../\"#' "${dir}/modules.tf" "${dir}/base.tf"
+              # If it's a module with Gitlab URL
+              elif [[ -z "${i##*ssh://git@git.fr.clara.net*}" ]]; then
+                echo "Do nothing with this URL dude !"
+              elif [[ -z "${i##*github.com*}" ]]; then
+                echo "Do nothing with this URL dude !"
+              # If it's a module of Terraform Registry
+              else
+                sed -i 's#\"'"${i}"'\"#&\n\  version = '"\"> 1.0\""'#' "${dir}/modules.tf" "${dir}/base.tf"
+              fi
+            done
           done
           cat examples/**/modules.tf
 
