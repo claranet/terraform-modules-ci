@@ -29,9 +29,16 @@ jobs:
           export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
 
-      - name: Install OpenTofu
+      - name: Install OpenTofu and dependencies
+        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        with:
+          version: v2025.12.0 # [default: latest] mise version to install
+          install: true # [default: true] run `mise install`
+          cache: true # [default: true] cache mise using GitHub's cache
+          experimental: false # [default: false] enable experimental features
+
+      - name: Check OpenTofu
         run: |
-          curl -fsSL https://get.opentofu.org/install-opentofu.sh | sh -s -- --install-method deb
           tofu --version
 
       - name: Prepare repo
