@@ -17,12 +17,6 @@ jobs:
           ref: "main"
           path: ".github/terraform-modules-ci"
 
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6.2.2
-        with:
-          tflint_version: v0.52.0
-          cache: true
-
       - name: Prepare TFLint config file
         run: |
           apk update && apk add git jq curl
