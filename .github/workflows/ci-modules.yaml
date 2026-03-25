@@ -14,14 +14,10 @@ jobs:
     needs: [lint, validate]
     uses: ./.github/workflows/documentation.yaml
 
-  code-analysis:
-    needs: [documentation]
-    uses: ./.github/workflows/code-analysis.yaml
-
   examples:
-    needs: [code-analysis]
+    needs: [lint, validate, documentation]
     uses: ./.github/workflows/examples.yaml
 
-  generator:
-    needs: [examples]
-    uses: ./.github/workflows/generate.yaml
+  # generator:
+  #   needs: [examples]
+  #   uses: ./.github/workflows/generate.yaml

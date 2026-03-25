@@ -6,23 +6,24 @@ env:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    container:
-      image: hashicorp/terraform:1.5
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Checkout CI repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          repository: 'claranet/terraform-modules-ci'
-          ref: 'main'
-          path: '.github/terraform-modules-ci'
+          repository: "claranet/terraform-modules-ci"
+          ref: "main"
+          path: ".github/terraform-modules-ci"
 
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v2
+      - name: Install OpenTofu/TFlint and dependencies
+        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: v2026.3.15 # [default: latest] mise version to install
+          install: true # [default: true] run `mise install`
+          cache: true # [default: true] cache mise using GitHub's cache
+          experimental: false # [default: false] enable experimental features
 
       - name: Prepare TFLint config file
         run: |
@@ -45,7 +46,10 @@ jobs:
 
       - name: Init TFLint
         run: tflint --init --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
+        env:
+          # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: TFLint
         run: |
-          for d in . $(find . -maxdepth 2 -path './modules/*' -type d -print); do cd $d && echo "current dir $PWD" && terraform init && TFLINT_LOG=debug tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit $?; cd -; done
+          for d in . $(find . -maxdepth 2 -path './modules/*' -type d -print); do cd $d && echo "current dir $PWD" && tofu init && TFLINT_LOG=debug tflint --config $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl || exit $?; cd -; done
