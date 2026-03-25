@@ -1,17 +1,15 @@
-# Terraform Azure modules - Generic CI
+# OpenTofu Azure modules - Generic CI
 
 ## Usage
 
-### CI for Terraform module
+### CI for OpenTofu module
 
 This CI pipeline does the following:
-* Check the Terraform files format and syntax validation
-* Lint the module, eventual sub-modules and examples with [TFLint](https://github.com/terraform-linters/tflint) tool.
-* Code analysis with [tfsec](https://github.com/aquasecurity/tfsec)
-* Check that the `README.md` file content match the module variables, requirements and examples.
-* Validate the module for every compatible Terraform version and minimum and latest provider versions
 
-### CI for Terraform projects
+* Check the OpenTofu files format and syntax validation
+* Lint the module, eventual sub-modules and examples with [TFLint](https://github.com/terraform-linters/tflint)
+* Check that the `README.md` file content matches the module variables, requirements and examples (via [terraform-docs](https://github.com/terraform-docs/terraform-docs))
+* Validate the module examples with OpenTofu and TFLint
 
 In the remote project add this in `.github/workflows/github-ci.yml`:
 
@@ -21,10 +19,14 @@ name: CI
 on: [push]
 jobs:
   ci:
-    uses: claranet/terraform-modules-ci/.github/workflows/ci-modules.yaml@main
+    uses: claranet/terraform-modules-ci/.github/workflows/ci-modules.yaml@{latest-tag-sha-full-hash}
 ...
 ```
 
-#### Notes
+### Tool versions
 
-* Ref `main` can be changed for testing purpose
+| Tool | Version |
+|------|---------|
+| [OpenTofu](https://opentofu.org/) | `1.11.5` |
+| [TFLint](https://github.com/terraform-linters/tflint) | `v0.52.0` |
+| [terraform-docs](https://github.com/terraform-docs/terraform-docs) | `0.21.0` |
