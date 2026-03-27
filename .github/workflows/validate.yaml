@@ -18,6 +18,8 @@ jobs:
 
       - name: fmt
         run: |
+          mise doctor
+          which tofu
           tofu fmt -write=false -diff -check -recursive
 
       - name: validate
