@@ -11,13 +11,15 @@ jobs:
       - name: Install OpenTofu and dependencies
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
-          version: v2026.3.15 # [default: latest] mise version to install
+          version: v2026.3.17 # [default: latest] mise version to install
           install: true # [default: true] run `mise install`
           cache: true # [default: true] cache mise using GitHub's cache
           experimental: false # [default: false] enable experimental features
 
       - name: fmt
         run: |
+          mise doctor
+          which tofu
           tofu fmt -write=false -diff -check -recursive
 
       - name: validate
