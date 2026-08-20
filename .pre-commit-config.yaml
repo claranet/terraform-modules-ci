@@ -1,16 +1,26 @@
+default_install_hook_types: [commit-msg, pre-commit]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        stages: [pre-commit]
       - id: end-of-file-fixer
+        stages: [pre-commit]
       - id: check-json
+        stages: [pre-commit]
       - id: check-yaml
+        stages: [pre-commit]
         args:
           - --unsafe
       - id: check-symlinks
+        stages: [pre-commit]
       - id: check-added-large-files
+        stages: [pre-commit]
+        args:
+          - --maxkb=15000
       - id: detect-private-key
+        stages: [pre-commit]
 
   - repo: https://github.com/crate-ci/committed
     rev: v1.1.11
