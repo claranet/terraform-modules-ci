@@ -2,6 +2,8 @@ plugin "azurerm" {
   enabled = true
   source  = "github.com/terraform-linters/tflint-ruleset-azurerm"
   version = "TFLINT_AZURERM_PLUGIN_VERSION"
+
+  signature = "pgp" // Verify via PGP, not GitHub attestation
 }
 
 config {
