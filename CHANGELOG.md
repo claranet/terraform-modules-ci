@@ -1,3 +1,20 @@
+# v1.2.0 - 2026-08-20
+
+Added
+  * Add modules `v9.x.x` row (OpenTofu `1.12.x`, AzureRM `>= 5.0`) to the `terraform-docs` versioning table
+  * Verify the TFLint AzureRM ruleset signature via PGP instead of GitHub attestation
+
+Changed
+  * Align tool versions with the GitLab CI repository for modules v9: OpenTofu `1.12.5`, terraform-docs `0.24.0`, TFLint `0.64.0`
+  * Bump the `terraform-docs` container image to `0.24.0-amd64` in the documentation workflow
+  * Use `prek` as git hooks runner instead of `pre-commit`, aligned with the GitLab CI repository
+  * Align `.pre-commit-config.yaml` with the GitLab CI repository (`default_install_hook_types`, explicit hook
+    stages, `--maxkb=15000` for `check-added-large-files`)
+
+Fixed
+  * Drop the leftover Alpine `apk` calls from the `lint` and `examples` jobs, which have been running directly
+    on `ubuntu-latest` since the move to `mise` and were failing on the missing `apk` command
+
 # v1.1.0 - 2026-03-25
 
 Added
