@@ -7,6 +7,8 @@ Added
 Changed
   * Align tool versions with the GitLab CI repository for modules v9: OpenTofu `1.12.5`, terraform-docs `0.24.0`, TFLint `0.64.0`
   * Bump the `terraform-docs` container image to `0.24.0-amd64` in the documentation workflow
+  * Drop the leftover `mise doctor`/`which tofu` debug output from the `fmt` step and confirm success
+    explicitly, so a green run no longer looks like `tofu fmt` was skipped
   * Use `prek` as git hooks runner instead of `pre-commit`, aligned with the GitLab CI repository
   * Align `.pre-commit-config.yaml` with the GitLab CI repository (`default_install_hook_types`, explicit hook
     stages, `--maxkb=15000` for `check-added-large-files`)
