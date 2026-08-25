@@ -14,20 +14,19 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: "claranet/terraform-modules-ci"
-          ref: "v1.1.0"
+          ref: "feat/modules_v9"
           path: ".github/terraform-modules-ci"
 
       - name: Install OpenTofu/TFlint and dependencies
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
-          version: v2026.3.17 # [default: latest] mise version to install
+          version: v2026.8.9 # [default: latest] mise version to install
           install: true # [default: true] run `mise install`
           cache: true # [default: true] cache mise using GitHub's cache
           experimental: false # [default: false] enable experimental features
 
       - name: Prepare TFLint config file
         run: |
-          apk update && apk add git jq curl
           export TFLINT_AZURERM_PLUGIN_VERSION=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --header 'content-type: application/json' "https://api.github.com/repos/terraform-linters/tflint-ruleset-azurerm/tags" | jq -r '.[0].name' | sed 's/v//')
           sed -i "s/TFLINT_AZURERM_PLUGIN_VERSION/$TFLINT_AZURERM_PLUGIN_VERSION/g" $GITHUB_WORKSPACE/.github/terraform-modules-ci/tflint.hcl
 

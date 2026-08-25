@@ -19,37 +19,35 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ### Pre-commit usage
 
-We recommend using `pre-commit` ([the famous python git hooks tool](https://pre-commit.com/#intro))
-when you start a contribution. It will automatically trigger hooks which ensure our codestyle rules are followed,
-files are formatted and linted, and that your README.md file is properly generated and updated.
+We recommend running our git hooks when you start a contribution. They automatically ensure our codestyle
+rules are followed, files are formatted and linted, and that your README.md file is properly generated and
+updated.
 
-Installation on your local system:
-```bash
-$ pipx install pre-commit
-```
-or
-```bash
-$ pip3 install pre-commit --user
-```
+The hooks are declared in [`.pre-commit-config.yaml`](.pre-commit-config.yaml) and are run by
+[`prek`](https://github.com/j178/prek), a drop-in replacement for
+[`pre-commit`](https://pre-commit.com/#intro) — it is the runner pinned in `.tool-versions` and is installed
+for you by `mise install` below. The original `pre-commit` still works if you prefer it.
 
-and then, configure and enable our hooks:
+Set up the pinned tooling locally with [mise](https://mise.jdx.dev/) — versions come from `.tool-versions`:
 ```bash
 $ cd path_to_the_git_cloned_module/
-$ pre-commit install
-```
-
-Do your changes as usual, hooks will be triggered by `pre-commit` every time you use the `git commit` command.
-
-To have all `pre-commit` hooks working you will have to set up these dependencies locally.
-We recommend using [mise](https://mise.jdx.dev/) — tool versions are pinned in `.tool-versions`:
-```bash
 $ mise install
 ```
 
 This will install the following tools at the correct versions:
+- [prek](https://github.com/j178/prek) — git hooks runner
 - [opentofu](https://opentofu.org/) — OpenTofu CLI (replaces Terraform)
 - [terraform-docs](https://github.com/terraform-docs/terraform-docs) — documentation generator
 - [tflint](https://github.com/terraform-linters/tflint) — linter for OpenTofu/Terraform
+
+Then configure and enable our hooks:
+```bash
+$ prek install
+```
+`.pre-commit-config.yaml` declares `default_install_hook_types: [commit-msg, pre-commit]`, so both hook types
+are installed by that single command.
+
+Do your changes as usual, hooks will be triggered every time you use the `git commit` command.
 
 ## Code of Conduct
 

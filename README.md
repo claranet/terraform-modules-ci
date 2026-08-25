@@ -27,6 +27,6 @@ jobs:
 
 | Tool | Version |
 |------|---------|
-| [OpenTofu](https://opentofu.org/) | `1.11.5` |
-| [TFLint](https://github.com/terraform-linters/tflint) | `v0.52.0` |
-| [terraform-docs](https://github.com/terraform-docs/terraform-docs) | `0.21.0` |
+| [OpenTofu](https://opentofu.org/) | `1.12.5` |
+| [TFLint](https://github.com/terraform-linters/tflint) | `0.64.0` |
+| [terraform-docs](https://github.com/terraform-docs/terraform-docs) | `0.24.0` |
